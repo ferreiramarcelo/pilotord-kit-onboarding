@@ -35,12 +35,21 @@ contract TPFtAccessControl is AccessControl {
 
 
     /**
+     * Endereço do contrato TPFtDvP.
+     */
+    address private _tpftDvPContractAddress;
+
+    /**
      * Evento emitido para indicar a ativação ou desativação de uma carteira no contrato TPFt.
      * @param member Endereço da carteira afetada.
      * @param msgSender Endereço do remetente que ativou/desativou a conta.
      * @param isEnabled  Booleano que indica se a conta foi ativada (True) ou desativada (False).
      */
-    event WalletActivationChanged(address indexed member, address indexed msgSender, bool isEnabled);
+    event WalletActivationChanged(
+        address indexed member,
+        address indexed msgSender,
+        bool isEnabled
+    );
 
     /**
      * Endereço do contrato TPFt de Lógica.
@@ -57,20 +66,22 @@ contract TPFtAccessControl is AccessControl {
     }
 
     /**
-    * Modificador que permite que apenas o contrato de Lógica do TPFt execute a função decorada.
-    * Verifica se o chamador da função é o contrato de Lógica autorizado (_getTPFtLogicAddress()),
-    * caso contrário, a transação será revertida com a mensagem "Unauthorized wallet to perform the operation".
-    */
+     * Modificador que permite que apenas o contrato de Lógica do TPFt execute a função decorada.
+     * Verifica se o chamador da função é o contrato de Lógica autorizado (_getTPFtLogicAddress()),
+     * caso contrário, a transação será revertida com a mensagem "Unauthorized wallet to perform the operation".
+     */
     modifier onlyTPFtLogicContract() {
         if (_msgSender() != _getTPFtLogicContract()) {
-            revert("TPFtAccessControl: Unauthorized wallet to perform the operation");
+            revert(
+                "TPFtAccessControl: Unauthorized wallet to perform the operation"
+            );
         }
         _;
     }
 
     /**
-    * Função externa que retorna o endereço do TPFtLogic.
-    */
+     * Função externa que retorna o endereço do TPFtLogic.
+     */
     function _getTPFtLogicContract() private view returns (address) {
         return _tpftLogicContract;
     }
@@ -82,6 +93,16 @@ contract TPFtAccessControl is AccessControl {
     function setTPFtLogicContract(address tpftLogicContract_) external {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()));
         _tpftLogicContract = tpftLogicContract_;
+    }
+
+    /**
+     * Função externa para atualizar o endereço do contrato de dvp TPFt
+     * @param tpftDvPContract_ Endereço do novo contrato de dvp TPFt
+     */
+    function setTPFtDvPContractAddress(
+        address tpftDvPContract_
+    ) external onlyTPFtLogicContract {
+        _tpftDvPContractAddress = tpftDvPContract_;
     }
 
     /**
@@ -116,7 +137,10 @@ contract TPFtAccessControl is AccessControl {
      * @param role O tipo de permissão (_ROLE_) que será concedido
      * @param wallet Carteira à qual a permissão (_ROLE_) será concedida
      */
-    function grantRole(bytes32 role, address wallet) public virtual override onlyTPFtLogicContract {
+    function grantRole(
+        bytes32 role,
+        address wallet
+    ) public virtual override onlyTPFtLogicContract {
         _grantRole(role, wallet);
     }
 
@@ -125,7 +149,10 @@ contract TPFtAccessControl is AccessControl {
      * @param role O tipo de permissão (_ROLE_) que será revogado
      * @param wallet Carteira à qual a permissão (_ROLE_) será revogada
      */
-    function revokeRole(bytes32 role, address wallet) public virtual override onlyTPFtLogicContract {
+    function revokeRole(
+        bytes32 role,
+        address wallet
+    ) public virtual override onlyTPFtLogicContract {
         _revokeRole(role, wallet);
     }
 
@@ -133,7 +160,11 @@ contract TPFtAccessControl is AccessControl {
      * Função externa que retorna o endereço do contrato TPFtOperation1001.
      * @return Retorna o endereço do contrato TPFtOperation1001.
      */
-    function getTPFt1001OperationContractAddress() external view returns (address) {
+    function getTPFt1001OperationContractAddress()
+        external
+        view
+        returns (address)
+    {
         return _getTPFt1001OperationContractAddress();
     }
 
@@ -141,7 +172,11 @@ contract TPFtAccessControl is AccessControl {
      * Função interna que retorna o endereço do contrato TPFtOperation1001.
      * @return Retorna o endereço do contrato TPFtOperation1001.
      */
-    function _getTPFt1001OperationContractAddress() private view returns (address) {
+    function _getTPFt1001OperationContractAddress()
+        private
+        view
+        returns (address)
+    {
         return _tpftOperation1001ContractAddress;
     }
 
@@ -149,7 +184,11 @@ contract TPFtAccessControl is AccessControl {
      * Função externa que retorna o endereço do contrato TPFtOperation1012.
      * @return Retorna o endereço do contrato TPFtOperation1012.
      */
-    function getTPFt1012OperationContractAddress() external view returns (address) {
+    function getTPFt1012OperationContractAddress()
+        external
+        view
+        returns (address)
+    {
         return _getTPFt1012OperationContractAddress();
     }
 
@@ -157,7 +196,11 @@ contract TPFtAccessControl is AccessControl {
      * Função interna que retorna o endereço do contrato TPFtOperation1012.
      * @return Retorna o endereço do contrato TPFtOperation1012.
      */
-    function _getTPFt1012OperationContractAddress() private view returns (address) {
+    function _getTPFt1012OperationContractAddress()
+        private
+        view
+        returns (address)
+    {
         return _tpftOperation1012ContractAddress;
     }
 
@@ -165,7 +208,11 @@ contract TPFtAccessControl is AccessControl {
      * Função externa que retorna o endereço do contrato TPFtOperation1070.
      * @return Retorna o endereço do contrato TPFtOperation1070.
      */
-    function getTPFt1070OperationContractAddress() external view returns (address) {
+    function getTPFt1070OperationContractAddress()
+        external
+        view
+        returns (address)
+    {
         return _getTPFt1070OperationContractAddress();
     }
 
@@ -173,24 +220,39 @@ contract TPFtAccessControl is AccessControl {
      * Função interna que retorna o endereço do contrato TPFtOperation1070.
      * @return Retorna o endereço do contrato TPFtOperation1070.
      */
-    function _getTPFt1070OperationContractAddress() private view returns (address) {
+    function _getTPFt1070OperationContractAddress()
+        private
+        view
+        returns (address)
+    {
         return _tpftOperation1070ContractAddress;
+    }
+
+    /**
+     * Função externa que retorna o endereço do contrato TPFtDvP.
+     * @return Retorna o endereço do contrato TPFtDvP.
+     */
+    function getTPFtDvPContractAddress() external view returns (address) {
+        return _tpftDvPContractAddress;
     }
 
     /**
      * Função externa que define/atualiza o endereço do contrato TPFtOperation1001.
      * @param tpftOperation1001ContractAddress_ Novo endereço do contrato TPFtOperation1001.
      */
-    function setTPFt1001OperationContractAddress(address tpftOperation1001ContractAddress_) external onlyTPFtLogicContract {
+    function setTPFt1001OperationContractAddress(
+        address tpftOperation1001ContractAddress_
+    ) external onlyTPFtLogicContract {
         _tpftOperation1001ContractAddress = tpftOperation1001ContractAddress_;
     }
-
 
     /**
      * Função externa que define/atualiza o endereço do contrato TPFtOperation1012.
      * @param tpftOperation1012ContractAddress_ Novo endereço do contrato TPFtOperation1012.
      */
-    function setTPFt1012OperationContractAddress(address tpftOperation1012ContractAddress_) external onlyTPFtLogicContract {
+    function setTPFt1012OperationContractAddress(
+        address tpftOperation1012ContractAddress_
+    ) external onlyTPFtLogicContract {
         _tpftOperation1012ContractAddress = tpftOperation1012ContractAddress_;
     }
 
@@ -198,7 +260,9 @@ contract TPFtAccessControl is AccessControl {
      * Função externa que define/atualiza o endereço do contrato TPFtOperation1070.
      * @param tpftOperation1070ContractAddress_ Novo endereço do contrato TPFtOperation1070.
      */
-    function setTPFt1070OperationContractAddress(address tpftOperation1070ContractAddress_) external onlyTPFtLogicContract {
+    function setTPFt1070OperationContractAddress(
+        address tpftOperation1070ContractAddress_
+    ) external onlyTPFtLogicContract {
         _tpftOperation1070ContractAddress = tpftOperation1070ContractAddress_;
     }
 }

@@ -134,6 +134,22 @@ contract TPFtLogic is ITPFt, Context, Initializable, UUPSUpgradeable {
     }
 
     /**
+     * Modificador que permite que apenas o contrato de Minter (TPFtOperation1001) do TPFt execute a função decorada.
+     * Verifica se o chamador da função é o contrato de Minter autorizado (TPFT_OPERATION_1001_CONTRACT_NAME),
+     * caso contrário, a transação será revertida.
+     */
+    modifier onlyDvPContract() {
+        if (
+            _msgSender() != _getTPFtAccessControl().getTPFtDvPContractAddress()
+        ) {
+            revert(
+                "TPFt: Unauthorized wallet to perform the operation, only DvP contract"
+            );
+        }
+        _;
+    }
+
+    /**
      * Modificador que permite que apenas o contrato de Colocação Direta (TPFtOperation1070) do TPFt execute a função decorada.
      * Verifica se o chamador da função é o contrato de Colocação Direta autorizado (TPFT_OPERATION_1070_CONTRACT_NAME),
      * caso contrário, a transação será revertida.
@@ -321,13 +337,14 @@ contract TPFtLogic is ITPFt, Context, Initializable, UUPSUpgradeable {
      * @param tpftId Id do TPFt.
      * @param tpftAmount Quantidade de TPFt a ser enviada na operação de colocação direta.
      */
+
     function safeTransferFrom(
         address from,
         address to,
         uint256 tpftId,
         uint256 tpftAmount,
         bytes calldata /*data*/
-    ) external override {
+    ) external override onlyDvPContract {
         require(
             from == _msgSender() ||
                 _getTPFtStorage().isApprovedForAll(from, _msgSender()),
@@ -358,7 +375,7 @@ contract TPFtLogic is ITPFt, Context, Initializable, UUPSUpgradeable {
         address to,
         ITPFt.TPFtData memory tpftData,
         uint256 tpftAmount
-    ) external override {
+    ) external override onlyDvPContract {
         require(
             from == _msgSender() ||
                 _getTPFtStorage().isApprovedForAll(from, _msgSender()),
@@ -390,7 +407,7 @@ contract TPFtLogic is ITPFt, Context, Initializable, UUPSUpgradeable {
         uint256[] memory tpftIds,
         uint256[] memory tpftAmounts,
         bytes calldata data
-    ) external override {
+    ) external override onlyDvPContract {
         require(
             from == _msgSender() ||
                 _getTPFtStorage().isApprovedForAll(from, _msgSender()),
@@ -420,7 +437,7 @@ contract TPFtLogic is ITPFt, Context, Initializable, UUPSUpgradeable {
         ITPFt.TPFtData[] memory tpftDataList,
         uint256[] memory tpftAmounts,
         bytes calldata data
-    ) external override {
+    ) external override onlyDvPContract {
         require(
             from == _msgSender() ||
                 _getTPFtStorage().isApprovedForAll(from, _msgSender()),
@@ -903,6 +920,35 @@ contract TPFtLogic is ITPFt, Context, Initializable, UUPSUpgradeable {
         );
         _getTPFtAccessControl().setTPFt1070OperationContractAddress(
             tpftOperation1070ContractAddress_
+        );
+    }
+
+    /**
+     * Função externa que define/atualiza o endereço do contrato TPFtDvP.
+     * @param tpftDvPContractAddress_ Novo endereço do contrato TPFtDvP.
+     */
+    function setTPFtDvPContractAddress(
+        address tpftDvPContractAddress_
+    ) external {
+        require(
+            _getTPFtAccessControl().hasRole(
+                _getTPFtAccessControl().DEFAULT_ADMIN_ROLE(),
+                _msgSender()
+            ),
+            "Unauthorized wallet to perform the operation"
+        );
+        _getTPFtAccessControl().setTPFtDvPContractAddress(
+            tpftDvPContractAddress_
+        );
+    }
+
+    /**
+                _msgSender()
+            ),
+            "Unauthorized wallet to perform the operation"
+        );
+        _getTPFtAccessControl().setTPFtDvPContractAddress(
+            tpftDvPContractAddress_
         );
     }
 
